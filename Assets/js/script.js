@@ -1,23 +1,50 @@
-// Wrap all code that interacts with the DOM in a call to jQuery to ensure that
-// the code isn't run until the browser has finished rendering all the elements
-// in the html.
-$(function () {
-  // TODO: Add a listener for click events on the save button. This code should
-  // use the id in the containing time-block as a key to save the user input in
-  // local storage. HINT: What does `this` reference in the click listener
-  // function? How can DOM traversal be used to get the "hour-x" id of the
-  // time-block containing the button that was clicked? How might the id be
-  // useful when saving the description in local storage?
-  //
-  // TODO: Add code to apply the past, present, or future class to each time
-  // block by comparing the id to the current hour. HINTS: How can the id
-  // attribute of each time-block be used to conditionally add or remove the
-  // past, present, and future classes? How can Day.js be used to get the
-  // current hour in 24-hour time?
-  //
-  // TODO: Add code to get any user input that was saved in localStorage and set
-  // the values of the corresponding textarea elements. HINT: How can the id
-  // attribute of each time-block be used to do this?
-  //
-  // TODO: Add code to display the current date in the header of the page.
+$(document).ready (function (){
+
+//selectors for page elements
+var currentDayEl = $('#currentDay');
+var hourEl = $('.time-block');
+var buttonEl = $('.btn');
+
+// time variables
+dayjs.extend(window.dayjs_plugin_advancedFormat);
+var today = dayjs().format('dddd MMMM, Do');
+var currentHour = dayjs().format('HH');
+
+// Other variables
+var storedSchedule = [];
+var hour =["09", "10", "11", "12", "13", "14", "15", "16", "17"];
+
+// display the current day in the header
+$(currentDayEl).html(today);
+
+// Get items from local storage
+for (i = 0; i < 9; i++) {
+  storedSchedule.push(JSON.parse(localStorage.getItem("hour-" + hour[i])));
+}
+
+// Event listener for the save buttons
+buttonEl.on('click', function() {
+  var saveID = $(this).parent().attr('id');
+  var saveText = $(this).siblings('.description').val();
+  localStorage.setItem(saveID, JSON.stringify(saveText));
+});
+
+//Fill the text areas from local storage and set the classes for the containers based on the current time.
+$(hourEl).each (function() {
+  var id = $(this).attr("id");
+  var right = id.slice(-2);
+  var text = JSON.parse(localStorage.getItem(id))
+    if (text) {
+      $(this).children('.description').html(text);
+    }
+    if (currentHour == right) {
+      $(this).addClass("present")
+    };
+    if (currentHour > right) {
+      $(this).addClass("past")
+    };
+    if (currentHour < right) {
+      $(this).addClass("future")
+    };
+  });
 });
